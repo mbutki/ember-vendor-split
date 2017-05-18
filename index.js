@@ -12,7 +12,24 @@ function removeStaticFromAppOptions(options)  {
   };
 };
 
-function mergeStaticIntoAppTree(appTree, env, basePath) {
+function mergeStaticIntoAppTree(app, env, basePath) {
+  let jqueryPath, emberProdPath, emberDebugPath;
+
+  let emberSource = null;
+  if (typeof app.findAddonByName === "function") {
+    emberSource = app.findAddonByName('ember-source');
+  }
+  if (emberSource) {
+    emberProdPath = emberSource.paths.prod;
+    emberDebugPath = emberSource.paths.debug;
+    jqueryPath = emberSource.paths.jquery;
+    console.log('mike:'+emberSource.paths.jquery);
+  } else {
+    emberProdPath = basePath + '/bower_components/ember';
+    emberDebugPath = basePath + '/bower_components/ember';
+    jqueryPath = basePath + '/bower_components/jquery/dist';
+  }
+
   const headerFiles = ['jquery.js'];
   const jqueryTree = new Funnel(basePath + '/bower_components/jquery/dist', { include: ['jquery.js'] });
   let emberTree = null;
@@ -25,11 +42,11 @@ function mergeStaticIntoAppTree(appTree, env, basePath) {
   }
 
   let staticVendor = new Merge([jqueryTree, emberTree], {});
-  staticVendor = new Concat(log(staticVendor), {
+  staticVendor = new Concat(staticVendor, {
     headerFiles,
     outputFile: basePath + '/assets/vendor-static.js',
   });
-  const customVendorAsset = new Merge([appTree, staticVendor]);
+  const customVendorAsset = new Merge([app.toTree(), staticVendor]);
   return customVendorAsset;
 };
 
