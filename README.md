@@ -11,7 +11,7 @@ Splits the vendor.js into a dynamic (vendor.js) and static (vendor-static.js) ha
 ## Running
 
 * `ember serve`
-* Visit your app at [http://localhost:4200](http://localhost:4200).
+* Visit your app at [http://localhost:4200](http://localhost:4200)
 
 ## Running Tests
 
