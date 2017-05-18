@@ -42,18 +42,22 @@ describe("MyBroccoliPlugin", function() {
   it("should build", co.wrap(function* () {
     let fakeAppTree = new Funnel(input.path() + '/assets', { include: ['test.js'], destDir: input.path() + '/assets' });
     let fakeApp = {
-      toTree: function() {return fakeAppTree},
-      findAddonByName: function() {
-        return {
-          paths: {
-            prod: input.path()+ '/bower_components/ember/ember.prod.js',
-            debug: input.path()+ '/bower_components/ember/ember.debug.js',
-            jquery: input.path() + '/bower_components/jquery/dist/jquery.js'
+      toTree: function() {return fakeAppTree}
+    }
+    let fakeDefaults = {
+      project:{
+        findAddonByName: function() {
+          return {
+            paths: {
+              prod: input.path()+ '/bower_components/ember/ember.prod.js',
+              debug: input.path()+ '/bower_components/ember/ember.debug.js',
+              jquery: input.path() + '/bower_components/jquery/dist/jquery.js'
+            }
           }
         }
       }
     }
-    subject = vendorSplit.mergeStaticIntoAppTree(fakeApp, 'production', input.path());
+    subject = vendorSplit.mergeStaticIntoAppTree(fakeApp, 'production', input.path(), fakeDefaults);
 
     output = createBuilder(subject);
     yield output.build();
