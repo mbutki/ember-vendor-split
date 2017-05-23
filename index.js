@@ -89,7 +89,7 @@ module.exports = {
     let jqueryPath = 'vendor/jquery/dist/jquery.js';
     let emberProdPath = 'vendor/ember/ember.prod.js';
     let emberDebugPath = 'vendor/ember/ember.debug.js';
-    
+
     const emberSource = app.project.findAddonByName('ember-source');
     if (emberSource) {
       jqueryPath = emberSource.paths.jquery
@@ -98,10 +98,14 @@ module.exports = {
     }
 
     app.import(jqueryPath, {
-      outputFile: 'assets/vendor-static.js'});
+      outputFile: 'assets/vendor-static.js'
+    });
+
     app.import({
       development: emberDebugPath,
-      production: emberProdPath,
-      outputFile: 'assets/vendor-static.js'});
+      production: emberProdPath
+    }, {
+      outputFile: 'assets/vendor-static.js'
+    });
   },
 };
