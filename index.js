@@ -5,6 +5,7 @@ const Funnel = require('broccoli-funnel');
 const Merge = require('broccoli-merge-trees');
 const Concat = require('broccoli-concat');
 const log = require('broccoli-stew').log;
+const fs = require('fs');
 //const uglify = require('ember-cli-uglify');
 //const uglify = require('broccoli-uglify-sourcemap');
 
@@ -86,12 +87,14 @@ module.exports = {
     }
     console.log('AFTER app._scriptOutputFiles[/assets/vendor.js]:' + app._scriptOutputFiles['/assets/vendor.js']);
 
-    let jqueryPath = 'vendor/jquery/dist/jquery.js';
-    let emberProdPath = 'vendor/ember/ember.prod.js';
-    let emberDebugPath = 'vendor/ember/ember.debug.js';
+    let jqueryPath = `${app.bowerDirectory}/jquery/dist/jquery.js`;
+    let emberProdPath = `${app.bowerDirectory}/ember/ember.prod.js`;
+    let emberDebugPath = `${app.bowerDirectory}/ember/ember.debug.js`;
+
+    let hasBower = fs.existsSync(app.root + '/bower.json');
 
     const emberSource = app.project.findAddonByName('ember-source');
-    if (emberSource) {
+    if (!hasBower && emberSource) {
       jqueryPath = emberSource.paths.jquery
       emberProdPath = emberSource.paths.prod
       emberDebugPath = emberSource.paths.debug
