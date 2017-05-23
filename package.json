@@ -22,6 +22,7 @@
     "broccoli-funnel": "^1.2.0",
     "broccoli-merge-trees": "^2.0.0",
     "broccoli-test-helper": "^1.1.0",
+    "broccoli-uglify-sourcemap": "^1.5.2",
     "chai": "^3.5.0",
     "ember-cli-babel": "^6.0.0",
     "mocha": "^3.4.1"
@@ -38,7 +39,6 @@
     "ember-cli-qunit": "^4.0.0",
     "ember-cli-shims": "^1.1.0",
     "ember-cli-sri": "^2.1.0",
-    "ember-cli-uglify": "^1.2.0",
     "ember-disable-prototype-extensions": "^1.1.0",
     "ember-export-application-global": "^2.0.0",
     "ember-load-initializers": "^1.0.0",

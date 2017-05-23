@@ -44,20 +44,13 @@ describe("MyBroccoliPlugin", function() {
     let fakeApp = {
       toTree: function() {return fakeAppTree}
     }
-    let fakeDefaults = {
-      project:{
-        findAddonByName: function() {
-          return {
-            paths: {
-              prod: input.path()+ '/bower_components/ember/ember.prod.js',
-              debug: input.path()+ '/bower_components/ember/ember.debug.js',
-              jquery: input.path() + '/bower_components/jquery/dist/jquery.js'
-            }
-          }
-        }
-      }
-    }
-    subject = vendorSplit.mergeStaticIntoAppTree(fakeApp, 'production', input.path(), fakeDefaults);
+
+    const filePaths = {emberProd: input.path() + '/bower_components/ember/ember.prod.js',
+                 emberDebug: input.path() + '/bower_components/ember/ember.debug.js',
+                 jquery: input.path() + '/bower_components/jquery/dist/jquery.js',
+                 staticVendor: input.path() + '/assets/vendor-static.js'};
+
+    subject = vendorSplit.mergeStaticIntoAppTree(fakeApp, 'development', filePaths);
 
     output = createBuilder(subject);
     yield output.build();
@@ -65,8 +58,8 @@ describe("MyBroccoliPlugin", function() {
     let outMock = {
       "assets": {
         "test.js": "var q = 4;",
-        "vendor-static.js": "var x = 1;\nvar z = 3;//# sourceMappingURL=vendor-static.map\n",
-        "vendor-static.map": "{\"version\":3,\"sources\":[\"jquery.js\",\"ember.prod.js\"],\"sourcesContent\":[\"var x = 1;\",\"var z = 3;\"],\"names\":[],\"mappings\":\"AAAA;ACAA\",\"file\":\"vendor-static.js\"}"
+        "vendor-static.js": "var x = 1;\nvar y = 2;//# sourceMappingURL=vendor-static.map\n",
+        "vendor-static.map": "{\"version\":3,\"sources\":[\"jquery.js\",\"ember.debug.js\"],\"sourcesContent\":[\"var x = 1;\",\"var y = 2;\"],\"names\":[],\"mappings\":\"AAAA;ACAA\",\"file\":\"vendor-static.js\"}"
       }
     };
 
