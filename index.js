@@ -8,6 +8,8 @@ module.exports = {
   included(app) {
     let jqueryPath, emberProdPath, emberDebugPath;
 
+    removeOutputFiles(app);
+
     const hasBower = fs.existsSync(app.root + '/bower.json');
     const emberSource = app.project.findAddonByName('ember-source');
 
