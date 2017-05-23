@@ -8,12 +8,13 @@ module.exports = {
   included(app) {
     let jqueryPath, emberProdPath, emberDebugPath;
 
-    removeOutputFiles(app);
-
     const hasBower = fs.existsSync(app.root + '/bower.json');
     const emberSource = app.project.findAddonByName('ember-source');
 
-    if (!hasBower && emberSource) {
+    const useSource = !hasBower && emberSource;
+    removeOutputFiles(app, useSource, emberSource);
+
+    if (useSource) {
       jqueryPath = emberSource.paths.jquery
       emberProdPath = emberSource.paths.prod
       emberDebugPath = emberSource.paths.debug
@@ -37,21 +38,21 @@ module.exports = {
 };
 
 module.exports.removeOutputFiles = removeOutputFiles;
-function removeOutputFiles(app) {
+function removeOutputFiles(app, useSource, emberSource) {
   // TODO: write unitTest
   // TODO: public API for ember-cli? maybe: https://github.com/ember-cli/ember-cli/pull/7060
-  let index = app._scriptOutputFiles['/assets/vendor.js'].indexOf('vendor/ember/jquery/jquery.js');
-  if (index > -1) {
-    app._scriptOutputFiles['/assets/vendor.js'].splice(index, 1);
+  let filesToRemove = null;
+  if (useSource) {
+    filesToRemove = [emberSource.paths.jquery, emberSource.paths.prod, emberSource.paths.debug];
+  } else {
+    filesToRemove = [`${app.bowerDirectory}/jquery/dist/jquery.js`, `${app.bowerDirectory}/ember/ember.prod.js`, `${app.bowerDirectory}/ember/ember.debug.js`];
   }
 
-  index = app._scriptOutputFiles['/assets/vendor.js'].indexOf('vendor/ember/ember.debug.js');
-  if (index > -1) {
-    app._scriptOutputFiles['/assets/vendor.js'].splice(index, 1);
-  }
-
-  index = app._scriptOutputFiles['/assets/vendor.js'].indexOf('vendor/ember/ember.prod.js');
-  if (index > -1) {
-    app._scriptOutputFiles['/assets/vendor.js'].splice(index, 1);
+  const vendorName = '/assets/vendor.js';
+  for (let i = 0; i < filesToRemove.length; i++) {
+    let index = app._scriptOutputFiles[vendorName].indexOf(filesToRemove[i]);
+    if (index > -1) {
+      app._scriptOutputFiles[vendorName].splice(index, 1);
+    }
   }
 }
