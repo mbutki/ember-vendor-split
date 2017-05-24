@@ -17,17 +17,10 @@
     "start": "ember server",
     "test": "ember try:each"
   },
-  "dependencies": {
-    "broccoli-concat": "^3.2.2",
-    "broccoli-funnel": "^1.2.0",
-    "broccoli-merge-trees": "^2.0.0",
-    "broccoli-test-helper": "^1.1.0",
-    "broccoli-uglify-sourcemap": "^1.5.2",
-    "chai": "^3.5.0",
-    "ember-cli-babel": "^6.0.0",
-    "mocha": "^3.4.1"
-  },
   "devDependencies": {
+    "broccoli-test-helper": "^1.1.0",
+    "chai": "^3.5.0",
+    "mocha": "^3.4.1",
     "broccoli-asset-rev": "^2.4.5",
     "ember-ajax": "^3.0.0",
     "ember-cli": "2.13.1",
@@ -39,6 +32,7 @@
     "ember-cli-qunit": "^4.0.0",
     "ember-cli-shims": "^1.1.0",
     "ember-cli-sri": "^2.1.0",
+    "ember-cli-uglify": "^1.2.0",
     "ember-disable-prototype-extensions": "^1.1.0",
     "ember-export-application-global": "^2.0.0",
     "ember-load-initializers": "^1.0.0",
