@@ -1,6 +1,12 @@
 "use strict";
 
-const expect = require('chai').expect;
+const chai = require('chai');
+const assert = require('chai').assert;
+const spies = require('chai-spies');
+const should = chai.should();
+const expect = chai.expect;
+chai.use(spies);
+
 const { createBuilder, createTempDir } = require("broccoli-test-helper");
 
 const Funnel = require('broccoli-funnel');
@@ -8,70 +14,126 @@ const vendorSplit = require("../index");
 const co = require('co');
 const log = require('broccoli-stew').log;
 
-describe("MyBroccoliPlugin", function() {
+const vendorStaticFilepath = 'assets/vendor-static.js';
+const vendorFilepath = '/assets/vendor.js';
+
+describe("removeOutputFiles", function() {
+  it("should remove files from vendor.js when using ember source", function() {
+    let useSource = true;
+    let emberSource = {
+      paths: {
+        jquery: 'node_modules/jquery/dist/jquery.js',
+        prod: 'node_modules/ember-source/dist/ember.prod.js',
+        debug: 'node_modules/ember-source/dist/ember.debug.js'
+      }
+    };
+    let app = {
+      _scriptOutputFiles: {
+        '/assets/vendor.js':[
+          'dummy/a.js',
+          emberSource.paths.jquery,
+          emberSource.paths.prod,
+          emberSource.paths.debug,
+          'dummy/b.js'
+        ]
+      }
+    };
+
+    vendorSplit.removeOutputFiles(app, useSource, emberSource);
+    assert.deepEqual(app._scriptOutputFiles, {'/assets/vendor.js':['dummy/a.js', 'dummy/b.js']});
+  });
+
+  it("should remove files from vendor.js when using bower", function() {
+    let useSource = false;
+    let emberSource = null;
+    let app = {bowerDirectory: 'bower_components'}
+    app._scriptOutputFiles = {
+      '/assets/vendor.js':[
+        'dummy/a.js',
+        `${app.bowerDirectory}/jquery/dist/jquery.js`,
+        `${app.bowerDirectory}/ember/ember.prod.js`,
+        `${app.bowerDirectory}/ember/ember.debug.js`,
+        'dummy/b.js'
+      ]
+    }
+
+    vendorSplit.removeOutputFiles(app, useSource, emberSource);
+    assert.deepEqual(app._scriptOutputFiles, {'/assets/vendor.js':['dummy/a.js', 'dummy/b.js']});
+  });
+});
+
+describe("included", function() {
   let input;
   let output;
   let subject;
 
-  beforeEach(co.wrap(function* () {
-    input = yield createTempDir();
-
-    input.write({
-      "bower_components": {
-        "jquery": {
-          "dist": {
-             "jquery.js": "var x = 1;",
-           }
-        },
-        "ember": {
-          "ember.debug.js": "var y = 2;",
-          "ember.prod.js": "var z = 3;"
-        }
-      },
-      "assets": {
-        "test.js": "var q = 4;"
-      }
-    });
-  }));
-
-  afterEach(co.wrap(function* () {
-    yield input.dispose();
-    yield output.dispose();
-  }));
-
-  it("should build", co.wrap(function* () {
-    let fakeAppTree = new Funnel(input.path() + '/assets', { include: ['test.js'], destDir: input.path() + '/assets' });
-    let fakeApp = {
-      toTree: function() {return fakeAppTree}
-    }
-
-    const filePaths = {emberProd: input.path() + '/bower_components/ember/ember.prod.js',
-                 emberDebug: input.path() + '/bower_components/ember/ember.debug.js',
-                 jquery: input.path() + '/bower_components/jquery/dist/jquery.js',
-                 staticVendor: input.path() + '/assets/vendor-static.js'};
-
-    subject = vendorSplit.mergeStaticIntoAppTree(fakeApp, 'development', filePaths);
-
-    output = createBuilder(subject);
-    yield output.build();
-
-    let outMock = {
-      "assets": {
-        "test.js": "var q = 4;",
-        "vendor-static.js": "var x = 1;\nvar y = 2;//# sourceMappingURL=vendor-static.map\n",
-        "vendor-static.map": "{\"version\":3,\"sources\":[\"jquery.js\",\"ember.debug.js\"],\"sourcesContent\":[\"var x = 1;\",\"var y = 2;\"],\"names\":[],\"mappings\":\"AAAA;ACAA\",\"file\":\"vendor-static.js\"}"
+  it("should import files from ember source", function() {
+    let emberSource = {
+      paths: {
+        jquery: 'node_modules/jquery/dist/jquery.js',
+        prod: 'node_modules/ember-source/dist/ember.prod.js',
+        debug: 'node_modules/ember-source/dist/ember.debug.js'
       }
     };
 
-    const splitPath = input.path().split("/");
-    for (let i = splitPath.length-1; i > 0; i--) {
-      let x = {};
-      x[splitPath[i]] = outMock;
-      outMock = x;
+    const jqueryPath = emberSource.paths.jquery
+    const emberProdPath = emberSource.paths.prod
+    const emberDebugPath = emberSource.paths.debug
+
+    const importSpy = chai.spy();
+
+    let app = {
+      project: {
+        findAddonByName: function() {return emberSource}
+      },
+      _scriptOutputFiles: {'/assets/vendor.js':[]},
+      "import": importSpy
     }
 
-    expect(
-      output.read()
-    ).to.deep.equal(outMock);
+    vendorSplit.included(app);
+    importSpy.should.have.been.called.with.exactly(jqueryPath, {outputFile: vendorStaticFilepath});
+    importSpy.should.have.been.called.with.exactly(
+      {
+        development: emberDebugPath,
+        production: emberProdPath
+      }, {
+        outputFile: vendorStaticFilepath
+      }
+    );
+  });
+
+  it("should import files from bower", co.wrap(function* () {
+    input = yield createTempDir();
+    input.write({"bower.json": "x"});
+
+    let emberSource = null;
+
+    const importSpy = chai.spy();
+
+    let app = {
+      project: {
+        findAddonByName: function() {return emberSource}
+      },
+      _scriptOutputFiles: {'/assets/vendor.js':[]},
+      "import": importSpy,
+      bowerDirectory: 'bower_components'
+    }
+
+    const jqueryPath = `${app.bowerDirectory}/jquery/dist/jquery.js`;
+    const emberProdPath = `${app.bowerDirectory}/ember/ember.prod.js`;
+    const emberDebugPath = `${app.bowerDirectory}/ember/ember.debug.js`;
+
+    vendorSplit.included(app);
+    importSpy.should.have.been.called.with.exactly(jqueryPath, {outputFile: vendorStaticFilepath});
+    importSpy.should.have.been.called.with.exactly(
+      {
+        development: emberDebugPath,
+        production: emberProdPath
+      }, {
+        outputFile: vendorStaticFilepath
+      }
+    );
+
+    yield input.dispose();
   }));
 });

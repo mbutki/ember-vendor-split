@@ -2,6 +2,8 @@
 "use strict";
 
 const fs = require('fs');
+const vendorStaticFilepath = 'assets/vendor-static.js';
+const vendorFilepath = '/assets/vendor.js';
 
 module.exports = {
   name: "ember-vendor-split",
@@ -24,35 +26,42 @@ module.exports = {
       emberDebugPath = `${app.bowerDirectory}/ember/ember.debug.js`;
     }
 
+    console.log(vendorStaticFilepath);
     app.import(jqueryPath, {
-      outputFile: 'assets/vendor-static.js'
+      outputFile: vendorStaticFilepath
     });
 
     app.import({
       development: emberDebugPath,
       production: emberProdPath
     }, {
-      outputFile: 'assets/vendor-static.js'
+      outputFile: vendorStaticFilepath
     });
-  },
+  }
 };
 
 module.exports.removeOutputFiles = removeOutputFiles;
 function removeOutputFiles(app, useSource, emberSource) {
-  // TODO: write unitTest
   // TODO: public API for ember-cli? maybe: https://github.com/ember-cli/ember-cli/pull/7060
   let filesToRemove = null;
   if (useSource) {
-    filesToRemove = [emberSource.paths.jquery, emberSource.paths.prod, emberSource.paths.debug];
+    filesToRemove = [
+      emberSource.paths.jquery,
+      emberSource.paths.prod,
+      emberSource.paths.debug
+    ];
   } else {
-    filesToRemove = [`${app.bowerDirectory}/jquery/dist/jquery.js`, `${app.bowerDirectory}/ember/ember.prod.js`, `${app.bowerDirectory}/ember/ember.debug.js`];
+    filesToRemove = [
+      `${app.bowerDirectory}/jquery/dist/jquery.js`,
+      `${app.bowerDirectory}/ember/ember.prod.js`,
+      `${app.bowerDirectory}/ember/ember.debug.js`
+    ];
   }
 
-  const vendorName = '/assets/vendor.js';
   for (let i = 0; i < filesToRemove.length; i++) {
-    let index = app._scriptOutputFiles[vendorName].indexOf(filesToRemove[i]);
+    let index = app._scriptOutputFiles[vendorFilepath].indexOf(filesToRemove[i]);
     if (index > -1) {
-      app._scriptOutputFiles[vendorName].splice(index, 1);
+      app._scriptOutputFiles[vendorFilepath].splice(index, 1);
     }
   }
 }
