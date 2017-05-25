@@ -26,7 +26,6 @@ module.exports = {
       emberDebugPath = `${app.bowerDirectory}/ember/ember.debug.js`;
     }
 
-    console.log(vendorStaticFilepath);
     app.import(jqueryPath, {
       outputFile: vendorStaticFilepath
     });
@@ -43,7 +42,7 @@ module.exports = {
 module.exports.removeOutputFiles = removeOutputFiles;
 function removeOutputFiles(app, useSource, emberSource) {
   // TODO: public API for ember-cli? maybe: https://github.com/ember-cli/ember-cli/pull/7060
-  let filesToRemove = null;
+  let filesToRemove;
   if (useSource) {
     filesToRemove = [
       emberSource.paths.jquery,
