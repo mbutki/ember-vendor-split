@@ -36,6 +36,10 @@ module.exports = {
     }, {
       outputFile: vendorStaticFilepath
     });
+  },
+  updateFastBootManifest: function(manifest) {
+    manifest.vendorFiles.unshift(vendorStaticFilepath);
+    return manifest;
   }
 };
 
