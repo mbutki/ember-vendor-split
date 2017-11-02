@@ -25,4 +25,7 @@ Splits the vendor.js into a dynamic (vendor.js) and static (vendor-static.js) ha
 
 * `ember build`
 
+## Fastboot compatibility 
+* This addon is compatible with fastboot 1.0 release. To use this addon with fastboot app, please include ember-cli-fastboot version 1.0.5 or above in your app as well.
+
 For more information on using ember-cli, visit [https://ember-cli.com/](https://ember-cli.com/).
