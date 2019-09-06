@@ -26,9 +26,12 @@ module.exports = {
       emberDebugPath = `${app.bowerDirectory}/ember/ember.debug.js`;
     }
 
-    app.import(jqueryPath, {
-      outputFile: vendorStaticFilepath
-    });
+    let optionalFeatures = app.project.findAddonByName('@ember/optional-features');
+    if (!optionalFeatures || optionalFeatures.isFeatureEnabled('jquery-integration')) {
+      app.import(jqueryPath, {
+        outputFile: vendorStaticFilepath
+      });
+    }
 
     app.import({
       development: emberDebugPath,

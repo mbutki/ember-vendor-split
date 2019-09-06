@@ -7,15 +7,10 @@ const should = chai.should();
 const expect = chai.expect;
 chai.use(spies);
 
-const { createBuilder, createTempDir } = require("broccoli-test-helper");
-
-const Funnel = require('broccoli-funnel');
+const { createTempDir } = require("broccoli-test-helper");
 const vendorSplit = require("../index");
 const co = require('co');
-const log = require('broccoli-stew').log;
-
 const vendorStaticFilepath = 'assets/vendor-static.js';
-const vendorFilepath = '/assets/vendor.js';
 
 describe("removeOutputFiles", function() {
   it("should remove files from vendor.js when using ember source", function() {
@@ -60,12 +55,96 @@ describe("removeOutputFiles", function() {
     vendorSplit.removeOutputFiles(app, useSource, emberSource);
     assert.deepEqual(app._scriptOutputFiles, {'/assets/vendor.js':['dummy/a.js', 'dummy/b.js']});
   });
+
+  it('does include jQuery if the app has `@ember/optional-features` with the `jquery-integration` feature flag turned on', function() {
+    let emberSource = {
+      paths: {
+        jquery: 'node_modules/jquery/dist/jquery.js',
+        prod: 'node_modules/ember-source/dist/ember.prod.js',
+        debug: 'node_modules/ember-source/dist/ember.debug.js'
+      }
+    };
+    let importSpy = chai.spy();
+    let app = {
+      root: '/',
+      project: {
+        findAddonByName(addon) {
+          if (addon === 'ember-source') {
+            return emberSource;
+          }
+          if (addon === '@ember/optional-features') {
+            return {
+              isFeatureEnabled() {
+                return true;
+              }
+            }
+          }
+        }
+      },
+      _scriptOutputFiles: {
+        '/assets/vendor.js':[
+          'dummy/a.js',
+          emberSource.paths.jquery,
+          emberSource.paths.prod,
+          emberSource.paths.debug,
+          'dummy/b.js'
+        ]
+      },
+      import: importSpy,
+    };
+
+    vendorSplit.included(app);
+    assert.ok(importSpy.should.have.been.called.twice);
+    assert.ok(importSpy.should.have.been.called.with(emberSource.paths.jquery));
+    assert.deepEqual(app._scriptOutputFiles, {'/assets/vendor.js':['dummy/a.js', 'dummy/b.js']});
+  });
+
+  it('does not include jQuery if the app has `@ember/optional-features` with the `jquery-integration` feature flag turned off', function() {
+    let emberSource = {
+      paths: {
+        jquery: 'node_modules/jquery/dist/jquery.js',
+        prod: 'node_modules/ember-source/dist/ember.prod.js',
+        debug: 'node_modules/ember-source/dist/ember.debug.js'
+      }
+    };
+    let importSpy = chai.spy();
+    let app = {
+      root: '/',
+      project: {
+        findAddonByName(addon) {
+          if (addon === 'ember-source') {
+            return emberSource;
+          }
+          if (addon === '@ember/optional-features') {
+            return {
+              isFeatureEnabled() {
+                return false;
+              }
+            }
+          }
+        }
+      },
+      _scriptOutputFiles: {
+        '/assets/vendor.js':[
+          'dummy/a.js',
+          emberSource.paths.jquery,
+          emberSource.paths.prod,
+          emberSource.paths.debug,
+          'dummy/b.js'
+        ]
+      },
+      import: importSpy,
+    };
+
+    vendorSplit.included(app);
+    assert.ok(importSpy.should.have.been.called.once);
+    assert.ok(importSpy.should.not.have.been.called.with(emberSource.paths.jquery));
+    assert.deepEqual(app._scriptOutputFiles, {'/assets/vendor.js':['dummy/a.js', 'dummy/b.js']});
+  });
 });
 
 describe("included", function() {
   let input;
-  let output;
-  let subject;
 
   it("should import files from ember source", function() {
     let emberSource = {
@@ -84,10 +163,21 @@ describe("included", function() {
 
     let app = {
       project: {
-        findAddonByName: function() {return emberSource}
+        findAddonByName(addon) {
+          if (addon === 'ember-source') {
+            return emberSource;
+          }
+          if (addon === '@ember/optional-features') {
+            return {
+              isFeatureEnabled() {
+                return true;
+              }
+            }
+          }
+        }
       },
       _scriptOutputFiles: {'/assets/vendor.js':[]},
-      "import": importSpy
+      import: importSpy
     }
 
     vendorSplit.included(app);

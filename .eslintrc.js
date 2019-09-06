@@ -6,7 +6,14 @@ module.exports = {
   },
   extends: 'eslint:recommended',
   env: {
-    browser: true
+    browser: true,
+    mocha: true,
+  },
+  globals: {
+    require: true,
+    module: true,
+    process: true,
+    Promise: true,
   },
   rules: {
   }
