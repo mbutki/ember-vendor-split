@@ -1,9 +1,12 @@
 /* eslint-env node */
 "use strict";
 
+const path = require('path');
 const fs = require('fs');
 const vendorStaticFilepath = 'assets/vendor-static.js';
 const vendorFilepath = '/assets/vendor.js';
+const vendorStaticPrefixPath = path.resolve(__dirname + '/assets/prefix-vendor-static-eval.js');
+const vendorStaticSuffixPath = path.resolve(__dirname + '/assets/suffix-vendor-static-eval.js');
 
 module.exports = {
   name: "ember-vendor-split",
@@ -26,6 +29,10 @@ module.exports = {
       emberDebugPath = `${app.bowerDirectory}/ember/ember.debug.js`;
     }
 
+    app.import(vendorStaticPrefixPath, {
+      outputFile: vendorStaticFilepath
+    });
+
     let optionalFeatures = app.project.findAddonByName('@ember/optional-features');
     if (!optionalFeatures || optionalFeatures.isFeatureEnabled('jquery-integration')) {
       app.import(jqueryPath, {
@@ -37,6 +44,10 @@ module.exports = {
       development: emberDebugPath,
       production: emberProdPath
     }, {
+      outputFile: vendorStaticFilepath
+    });
+
+    app.import(vendorStaticSuffixPath, {
       outputFile: vendorStaticFilepath
     });
   },
