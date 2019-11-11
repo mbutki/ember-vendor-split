@@ -1,10 +1,13 @@
 "use strict";
 
+const path = require('path');
+
 const chai = require('chai');
 const assert = require('chai').assert;
 const spies = require('chai-spies');
 const should = chai.should();
 const expect = chai.expect;
+
 chai.use(spies);
 
 const { createTempDir } = require("broccoli-test-helper");
@@ -94,7 +97,7 @@ describe("removeOutputFiles", function() {
     };
 
     vendorSplit.included(app);
-    assert.ok(importSpy.should.have.been.called.twice);
+    assert.ok(importSpy.should.have.been.called.exactly(4));
     assert.ok(importSpy.should.have.been.called.with(emberSource.paths.jquery));
     assert.deepEqual(app._scriptOutputFiles, {'/assets/vendor.js':['dummy/a.js', 'dummy/b.js']});
   });
@@ -137,7 +140,7 @@ describe("removeOutputFiles", function() {
     };
 
     vendorSplit.included(app);
-    assert.ok(importSpy.should.have.been.called.once);
+    assert.ok(importSpy.should.have.been.called.exactly(3));
     assert.ok(importSpy.should.not.have.been.called.with(emberSource.paths.jquery));
     assert.deepEqual(app._scriptOutputFiles, {'/assets/vendor.js':['dummy/a.js', 'dummy/b.js']});
   });
@@ -158,6 +161,8 @@ describe("included", function() {
     const jqueryPath = emberSource.paths.jquery
     const emberProdPath = emberSource.paths.prod
     const emberDebugPath = emberSource.paths.debug
+    const vendorStaticPrefixPath = path.join(__dirname, '../assets/prefix-vendor-static-eval.js');
+    const vendorStaticSuffixPath = path.join(__dirname, '../assets/suffix-vendor-static-eval.js');
 
     const importSpy = chai.spy();
 
@@ -181,6 +186,9 @@ describe("included", function() {
     }
 
     vendorSplit.included(app);
+
+    importSpy.should.have.been.called.exactly(4);
+    importSpy.should.have.been.called.with.exactly(vendorStaticPrefixPath, { outputFile: vendorStaticFilepath });
     importSpy.should.have.been.called.with.exactly(jqueryPath, {outputFile: vendorStaticFilepath});
     importSpy.should.have.been.called.with.exactly(
       {
@@ -190,6 +198,7 @@ describe("included", function() {
         outputFile: vendorStaticFilepath
       }
     );
+    importSpy.should.have.been.called.with(vendorStaticSuffixPath, { outputFile: vendorStaticFilepath });
   });
 
   it("should import files from bower", co.wrap(function* () {
@@ -212,8 +221,12 @@ describe("included", function() {
     const jqueryPath = `${app.bowerDirectory}/jquery/dist/jquery.js`;
     const emberProdPath = `${app.bowerDirectory}/ember/ember.prod.js`;
     const emberDebugPath = `${app.bowerDirectory}/ember/ember.debug.js`;
+    const vendorStaticPrefixPath = path.join(__dirname, '../assets/prefix-vendor-static-eval.js');
+    const vendorStaticSuffixPath = path.join(__dirname, '../assets/suffix-vendor-static-eval.js');
 
     vendorSplit.included(app);
+    importSpy.should.have.been.called.exactly(4);
+    importSpy.should.have.been.called.with.exactly(vendorStaticPrefixPath, { outputFile: vendorStaticFilepath });
     importSpy.should.have.been.called.with.exactly(jqueryPath, {outputFile: vendorStaticFilepath});
     importSpy.should.have.been.called.with.exactly(
       {
@@ -223,6 +236,7 @@ describe("included", function() {
         outputFile: vendorStaticFilepath
       }
     );
+    importSpy.should.have.been.called.with(vendorStaticSuffixPath, { outputFile: vendorStaticFilepath });
 
     yield input.dispose();
   }));
