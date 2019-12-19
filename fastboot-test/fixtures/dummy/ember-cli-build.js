@@ -4,7 +4,6 @@
 const EmberAddon = require('ember-cli/lib/broccoli/ember-addon');
 
 module.exports = function(defaults) {
-  let pathPrefix  =  __dirname;
   let app = new EmberAddon(defaults, {
     configPath: '/config/environment',
     trees: {
