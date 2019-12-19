@@ -5,9 +5,8 @@ const path = require('path');
 const chai = require('chai');
 const assert = require('chai').assert;
 const spies = require('chai-spies');
-const should = chai.should();
-const expect = chai.expect;
 
+chai.should();
 chai.use(spies);
 
 const { createTempDir } = require("broccoli-test-helper");

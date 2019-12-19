@@ -5,7 +5,6 @@ const expect = chai.expect;
 chai.use(require('chai-fs'));
 
 const glob = require('glob');
-
 const AddonTestApp = require('ember-cli-addon-tests').AddonTestApp;
 
 describe('it builds', function() {
