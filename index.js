@@ -85,14 +85,7 @@ function removeOutputFiles(app, useSource, emberSource) {
       `${app.bowerDirectory}/ember/ember.debug.js`
     ];
   }
-  // console.log("app.options.outputPaths",app.options.outputPaths);
-  // console.log("app.options.outputPaths.vendor.js",app.options.outputPaths.vendor.js);
   for (let i = 0; i < filesToRemove.length; i++) {
-    const scriptOutputFileKeys = Object.keys(app._scriptOutputFiles);
-    // console.log('app',app)
-    // console.log('app._scriptOutputFiles',app._scriptOutputFiles)
-    // console.log('filesToRemove[i]',filesToRemove[i])
-    // console.log('vendorFilepath',vendorFilepath)
     let index = app._scriptOutputFiles[vendorFilepath].indexOf(filesToRemove[i]);
     if (index > -1) {
       app._scriptOutputFiles[vendorFilepath].splice(index, 1);
