@@ -15,15 +15,15 @@ module.exports = {
 
     const hasBower = fs.existsSync(app.root + '/bower.json');
     const emberSource = app.project.findAddonByName('ember-source');
+    const useSource = !hasBower && emberSource;
+    
     if (app.options && app.options.outputPaths && app.options.outputPaths.vendor && app.options.outputPaths.vendor.js) {
       vendorFilepath = app.options.outputPaths.vendor.js;
       vendorStaticFilepath = vendorFilepath.replace('assets/','/assets/').replace('.js','-static.js');
-      console.log("vendorFilepath",vendorFilepath);
-      console.log("vendorStaticFilepath",vendorStaticFilepath);
     }
-    const useSource = !hasBower && emberSource;
+
     removeOutputFiles(app, useSource, emberSource);
-    console.log("app.options.outputPaths",app.options.outputPaths);
+
     if (useSource) {
       jqueryPath = emberSource.paths.jquery
       emberProdPath = emberSource.paths.prod
