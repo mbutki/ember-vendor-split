@@ -63,5 +63,8 @@
   },
   "ember-addon": {
     "configPath": "tests/dummy/config"
+  },
+  "dependencies": {
+    "broccoli-funnel": "^3.0.2"
   }
 }

@@ -3,10 +3,11 @@
 
 const path = require('path');
 const fs = require('fs');
+const Funnel = require('broccoli-funnel');
 const vendorStaticFilepath = 'assets/vendor-static.js';
 const vendorFilepath = '/assets/vendor.js';
-const vendorStaticPrefixPath = path.resolve(__dirname + '/assets/prefix-vendor-static-eval.js');
-const vendorStaticSuffixPath = path.resolve(__dirname + '/assets/suffix-vendor-static-eval.js');
+const vendorStaticPrefixPath = 'vendor/vendor-static/prefix-vendor-static-eval.js';
+const vendorStaticSuffixPath = 'vendor/vendor-static/suffix-vendor-static-eval.js';
 
 module.exports = {
   name: "ember-vendor-split",
@@ -51,6 +52,13 @@ module.exports = {
       outputFile: vendorStaticFilepath
     });
   },
+
+  treeForVendor() {
+    return new Funnel(path.join(__dirname, 'assets'), {
+      destDir: 'vendor-static',
+    });
+  },
+
   updateFastBootManifest: function(manifest) {
     manifest.vendorFiles.unshift(vendorStaticFilepath);
     return manifest;

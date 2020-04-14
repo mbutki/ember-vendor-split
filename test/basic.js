@@ -160,8 +160,8 @@ describe("included", function() {
     const jqueryPath = emberSource.paths.jquery
     const emberProdPath = emberSource.paths.prod
     const emberDebugPath = emberSource.paths.debug
-    const vendorStaticPrefixPath = path.join(__dirname, '../assets/prefix-vendor-static-eval.js');
-    const vendorStaticSuffixPath = path.join(__dirname, '../assets/suffix-vendor-static-eval.js');
+    const vendorStaticPrefixPath = 'vendor/vendor-static/prefix-vendor-static-eval.js';
+    const vendorStaticSuffixPath = 'vendor/vendor-static/suffix-vendor-static-eval.js';
 
     const importSpy = chai.spy();
 
@@ -220,8 +220,8 @@ describe("included", function() {
     const jqueryPath = `${app.bowerDirectory}/jquery/dist/jquery.js`;
     const emberProdPath = `${app.bowerDirectory}/ember/ember.prod.js`;
     const emberDebugPath = `${app.bowerDirectory}/ember/ember.debug.js`;
-    const vendorStaticPrefixPath = path.join(__dirname, '../assets/prefix-vendor-static-eval.js');
-    const vendorStaticSuffixPath = path.join(__dirname, '../assets/suffix-vendor-static-eval.js');
+    const vendorStaticPrefixPath = 'vendor/vendor-static/prefix-vendor-static-eval.js';
+    const vendorStaticSuffixPath = 'vendor/vendor-static/suffix-vendor-static-eval.js';
 
     vendorSplit.included(app);
     importSpy.should.have.been.called.exactly(4);
