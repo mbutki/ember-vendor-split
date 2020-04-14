@@ -3,11 +3,12 @@
 
 const path = require('path');
 const fs = require('fs');
-const Funnel = require('broccoli-funnel');
+const writeFile = require('broccoli-file-creator');
+const MergeTrees = require('broccoli-merge-trees');
 const vendorStaticFilepath = 'assets/vendor-static.js';
 const vendorFilepath = '/assets/vendor.js';
-const vendorStaticPrefixPath = 'vendor/vendor-static/prefix-vendor-static-eval.js';
-const vendorStaticSuffixPath = 'vendor/vendor-static/suffix-vendor-static-eval.js';
+const vendorStaticPrefixPath = 'vendor-static/prefix-vendor-static-eval.js';
+const vendorStaticSuffixPath = 'vendor-static/suffix-vendor-static-eval.js';
 
 module.exports = {
   name: "ember-vendor-split",
@@ -30,7 +31,7 @@ module.exports = {
       emberDebugPath = `${app.bowerDirectory}/ember/ember.debug.js`;
     }
 
-    app.import(vendorStaticPrefixPath, {
+    app.import(`vendor/${vendorStaticPrefixPath}`, {
       outputFile: vendorStaticFilepath
     });
 
@@ -48,15 +49,28 @@ module.exports = {
       outputFile: vendorStaticFilepath
     });
 
-    app.import(vendorStaticSuffixPath, {
+    app.import(`vendor/${vendorStaticSuffixPath}`, {
       outputFile: vendorStaticFilepath
     });
   },
 
   treeForVendor() {
-    return new Funnel(path.join(__dirname, 'assets'), {
-      destDir: 'vendor-static',
-    });
+    let EmberENV = JSON.stringify(this.project.config(process.env.EMBER_ENV).EmberENV);
+    let rawPrefixContent = fs.readFileSync(
+        path.join(__dirname, 'assets', 'prefix-vendor-static-eval.js'),
+        { encoding: 'utf8'}
+    );
+
+    let prefix = writeFile(
+      vendorStaticPrefixPath,
+      rawPrefixContent.replace('{{EMBER_ENV}}', EmberENV)
+    );
+    let suffix = writeFile(
+      vendorStaticSuffixPath,
+      fs.readFileSync(path.join(__dirname, 'assets', 'suffix-vendor-static-eval.js'), { encoding: 'utf8'})
+    );
+
+    return new MergeTrees([prefix, suffix]);
   },
 
   updateFastBootManifest: function(manifest) {
