@@ -3,8 +3,10 @@
 
 const path = require('path');
 const fs = require('fs');
+const Funnel = require('broccoli-funnel');
 const writeFile = require('broccoli-file-creator');
 const MergeTrees = require('broccoli-merge-trees');
+const fastbootTransform = require('fastboot-transform');
 const vendorStaticFilepath = 'assets/vendor-static.js';
 const vendorFilepath = '/assets/vendor.js';
 const vendorStaticPrefixPath = 'vendor-static/prefix-vendor-static-eval.js';
@@ -37,6 +39,7 @@ module.exports = {
 
     let optionalFeatures = app.project.findAddonByName('@ember/optional-features');
     if (!optionalFeatures || optionalFeatures.isFeatureEnabled('jquery-integration')) {
+      jqueryPath = fastbootTransform(new Funnel(jqueryPath));
       app.import(jqueryPath, {
         outputFile: vendorStaticFilepath
       });
