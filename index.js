@@ -5,10 +5,11 @@ const path = require('path');
 const fs = require('fs');
 const writeFile = require('broccoli-file-creator');
 const MergeTrees = require('broccoli-merge-trees');
-const vendorStaticFilepath = 'assets/vendor-static.js';
-const vendorFilepath = '/assets/vendor.js';
 const vendorStaticPrefixPath = 'vendor-static/prefix-vendor-static-eval.js';
 const vendorStaticSuffixPath = 'vendor-static/suffix-vendor-static-eval.js';
+
+let vendorStaticFilepath = 'assets/vendor-static.js';
+let vendorFilepath = '/assets/vendor.js';
 
 module.exports = {
   name: "ember-vendor-split",
@@ -19,6 +20,12 @@ module.exports = {
     const emberSource = app.project.findAddonByName('ember-source');
 
     const useSource = !hasBower && emberSource;
+
+    if (app.options && app.options.outputPaths && app.options.outputPaths.vendor && app.options.outputPaths.vendor.js) {
+      vendorFilepath = app.options.outputPaths.vendor.js;
+      vendorStaticFilepath = vendorFilepath.replace('assets/', '/assets/').replace('.js', '-static.js');
+    }
+
     removeOutputFiles(app, useSource, emberSource);
 
     if (useSource) {
@@ -83,6 +90,12 @@ module.exports.removeOutputFiles = removeOutputFiles;
 function removeOutputFiles(app, useSource, emberSource) {
   // TODO: public API for ember-cli? maybe: https://github.com/ember-cli/ember-cli/pull/7060
   let filesToRemove;
+
+  // Overrides vendor file path with outputPaths from host app.
+  if (app.options && app.options.outputPaths && app.options.outputPaths.vendor && app.options.outputPaths.vendor.js) {
+    vendorFilepath = app.options.outputPaths.vendor.js;
+  }
+
   if (useSource) {
     filesToRemove = [
       emberSource.paths.jquery,
