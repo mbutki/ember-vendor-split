@@ -1,7 +1,5 @@
 "use strict";
 
-const path = require('path');
-
 const chai = require('chai');
 const assert = require('chai').assert;
 const spies = require('chai-spies');
