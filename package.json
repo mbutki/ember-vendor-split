@@ -63,7 +63,10 @@
     "node": ">= 10.*"
   },
   "ember-addon": {
-    "configPath": "tests/dummy/config"
+    "configPath": "tests/dummy/config",
+    "after": [
+      "loader.js"
+    ]
   },
   "dependencies": {
     "broccoli-file-creator": "^2.1.1",

@@ -31,6 +31,11 @@ module.exports = {
       emberDebugPath = `${app.bowerDirectory}/ember/ember.debug.js`;
     }
 
+    app.import('vendor/loader/loader.js', {
+      outputFile: vendorStaticFilepath,
+      prepend: true
+    });
+
     app.import(`vendor/${vendorStaticPrefixPath}`, {
       outputFile: vendorStaticFilepath
     });
@@ -81,20 +86,19 @@ module.exports = {
 
 module.exports.removeOutputFiles = removeOutputFiles;
 function removeOutputFiles(app, useSource, emberSource) {
-  // TODO: public API for ember-cli? maybe: https://github.com/ember-cli/ember-cli/pull/7060
-  let filesToRemove;
+  let filesToRemove = [ 'vendor/loader/loader.js'];
   if (useSource) {
-    filesToRemove = [
+    filesToRemove.push(
       emberSource.paths.jquery,
       emberSource.paths.prod,
       emberSource.paths.debug
-    ];
+    );
   } else {
-    filesToRemove = [
+    filesToRemove.push(
       `${app.bowerDirectory}/jquery/dist/jquery.js`,
       `${app.bowerDirectory}/ember/ember.prod.js`,
       `${app.bowerDirectory}/ember/ember.debug.js`
-    ];
+    );
   }
 
   for (let i = 0; i < filesToRemove.length; i++) {
