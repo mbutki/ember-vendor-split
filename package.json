@@ -1,7 +1,7 @@
 {
   "name": "ember-vendor-split",
   "version": "1.2.0",
-  "description": "The default blueprint for ember-cli addons.",
+  "description": "Splits the vendor.js into two files: dynamic (vendor.js) and static (vendor-static.js)",
   "keywords": [
     "ember-addon"
   ],
