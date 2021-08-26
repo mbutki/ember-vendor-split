@@ -1,6 +1,6 @@
 {
   "name": "ember-vendor-split",
-  "version": "1.2.0",
+  "version": "2.0.0",
   "description": "Splits the vendor.js into two files: dynamic (vendor.js) and static (vendor-static.js)",
   "keywords": [
     "ember-addon"
